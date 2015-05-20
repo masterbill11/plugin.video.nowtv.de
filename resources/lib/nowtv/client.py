@@ -18,6 +18,32 @@ class UnsupportedStreamException(KodionException):
 
 
 class Client(object):
+    CHANNELS = [
+        {
+            'id': 'rtl',
+            'title': 'RTL'
+        },
+        {
+            'id': 'rtl2',
+            'title': 'RTL II'
+        },
+        {
+            'id': 'vox',
+            'title': 'VOX'
+        },
+        {
+            'id': 'ntv',
+            'title': 'N-TV'
+        },
+        {
+            'id': 'nitro',
+            'title': 'RTL Nitro'
+        },
+        {
+            'id': 'superrtl',
+            'title': 'Super RTL'
+        }
+    ]
     CONFIG_NTV_NOW = {'salt_phone': 'ba647945-6989-477b-9767-870790fcf552',
                       'salt_tablet': 'ba647945-6989-477b-9767-870790fcf552',
                       'key_phone': '46f63897-89aa-44f9-8f70-f0052050fe59',
@@ -135,9 +161,6 @@ class Client(object):
         self._amount = amount
         pass
 
-    def get_config(self):
-        return self._config
-
     def get_film_streams(self, film_id):
         result = []
 
@@ -170,7 +193,7 @@ class Client(object):
             else:
                 player_url = re.search(r"var playerUrl = baseURL \+ \'(?P<url>.+)\'", html)
                 if player_url:
-                    url = self._config['url']+player_url.group('url')
+                    url = self._config['url'] + player_url.group('url')
                     return _get_data_from_html(url)
                 pass
 
@@ -195,12 +218,12 @@ class Client(object):
         def _process_manifest(_url):
             try:
                 headers = {'Connection': 'keep-alive',
-                       'Cache-Control': 'max-age=0',
-                       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                       'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.38 Safari/537.36',
-                       'DNT': '1',
-                       'Accept-Encoding': 'gzip, deflate, sdch',
-                       'Accept-Language': 'en-US,en;q=0.8,de;q=0.6'}
+                           'Cache-Control': 'max-age=0',
+                           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                           'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.38 Safari/537.36',
+                           'DNT': '1',
+                           'Accept-Encoding': 'gzip, deflate, sdch',
+                           'Accept-Language': 'en-US,en;q=0.8,de;q=0.6'}
 
                 _result = requests.get(_url, headers=headers, verify=False)
 
@@ -292,82 +315,13 @@ class Client(object):
 
         return result
 
-    def get_film_details(self, film_id):
-        params = {'filmid': str(film_id)}
-        return self._perform_request(path='/api/query/json/content.film_details', params=params)
-
-    def get_films(self, format_id, page=1):
-        params = {'userid': '0',
-                  'formatid': str(format_id),
-                  'amount': str(self._amount),
-                  'page': str(page)}
-        return self._perform_request(path='/api/query/json/content.list_films', params=params)
-
-    def get_formats(self):
+    def get_formats(self, config):
         return self._perform_request(path='/api/query/json/content.list_formats')
 
     def search(self, q):
         params = {'word': q,
                   'extend': '1'}
         return self._perform_request(path='/api/query/json/content.format_search', params=params)
-
-    def get_newest(self):
-        return self._perform_request(path='/api/query/json/content.toplist_newest')
-
-    def get_tips(self):
-        return self._perform_request(path='/api/query/json/content_redaktion.tipplist')
-
-    def get_top_10(self):
-        return self._perform_request(path='/api/query/json/content.toplist_views')
-
-    def get_live_streams(self):
-        params = {'sessionid': self._create_session_id()}
-        return self._perform_request(path='/api/query/json/livestream.available', params=params)
-
-    def _create_session_id(self):
-        session_id = str(uuid.uuid4())
-        session_id = session_id.replace('-', '')
-        return session_id
-
-    def _calculate_token(self, timestamp, params):
-        token = ""
-
-        hash_map = {}
-        hash_map.update(params)
-
-        string_builder = ''
-        string_builder += self._config['key_tablet']
-        string_builder += ';'
-        string_builder += self._config['salt_tablet']
-        string_builder += ';'
-        string_builder += timestamp
-
-        params = sorted(hash_map.items())
-
-        for param in params:
-            string_builder += ';'
-            string_builder += param[1]
-            pass
-
-        if len(hash_map) == 0:
-            string_builder += ';'
-            pass
-
-        try:
-            message_digest = hashlib.md5()
-            message_digest.update(string_builder)
-            abyte0 = message_digest.digest()
-            length = len(abyte0)
-
-            for b in bytearray(abyte0):
-                val = b
-                val = 0x100 | 0xFF & val
-                hval = hex(val).lower()
-                token += hval[3:]
-        except:
-            token = ''
-
-        return token
 
     def _perform_request(self, method='GET', headers=None, path=None, post_data=None, params=None,
                          allow_redirects=True):
