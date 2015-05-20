@@ -11,6 +11,7 @@ class Provider(kodion.AbstractProvider):
     def __init__(self):
         kodion.AbstractProvider.__init__(self)
         self._client = None
+        self._channel_ids = ['rtl', 'rtl2', 'vox', 'ntv', 'nitro', 'superrtl']
 
         self._local_map.update({'now.library': 30500,
                                 'now.newest': 30501,
@@ -27,7 +28,7 @@ class Provider(kodion.AbstractProvider):
     def get_client(self, context):
         if not self._client:
             amount = context.get_settings().get_items_per_page()
-            self._client = Client(Client.CONFIG_RTL_NOW, amount=amount)
+            self._client = Client(amount=amount)
             pass
 
         return self._client
@@ -47,6 +48,26 @@ class Provider(kodion.AbstractProvider):
 
         return False
 
+    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formats/$')
+    def on_channel_formats(self, context, re_match):
+        context.set_content_type(kodion.content_type.TV_SHOWS)
+        context.add_sort_method(kodion.sort_method.LABEL)
+
+        result = []
+
+        channel_id = re_match.group('channel_id')
+        channel_config = Client.CHANNELS[channel_id]
+        client = self.get_client(context)
+
+        formats = client.get_formats(channel_config)
+        for format in formats:
+            format_title = format['title']
+            format_item = DirectoryItem(format_title, '')
+            result.append(format_item)
+            pass
+
+        return result
+
     def on_root(self, context, re_match):
         result = []
 
@@ -63,10 +84,11 @@ class Provider(kodion.AbstractProvider):
             pass
 
         # list channels
-        for channel_config in Client.CHANNELS:
+        for channel_id in self._channel_ids:
+            channel_config = Client.CHANNELS[channel_id]
             channel_id = channel_config['id']
             channel_title = channel_config['title']
-            channel_item = DirectoryItem(channel_title, '')
+            channel_item = DirectoryItem(channel_title, context.create_uri([channel_id, 'formats']))
             channel_item.set_fanart(context.create_resource_path('media', channel_id, 'background.jpg'))
             result.append(channel_item)
             pass

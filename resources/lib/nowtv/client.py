@@ -18,32 +18,34 @@ class UnsupportedStreamException(KodionException):
 
 
 class Client(object):
-    CHANNELS = [
-        {
+    CHANNELS = {
+        'rtl': {
             'id': 'rtl',
             'title': 'RTL'
         },
-        {
+        'rtl2': {
             'id': 'rtl2',
             'title': 'RTL II'
         },
-        {
+        'vox': {
             'id': 'vox',
             'title': 'VOX'
         },
-        {
-            'id': 'ntv',
-            'title': 'N-TV'
-        },
-        {
-            'id': 'nitro',
-            'title': 'RTL Nitro'
-        },
-        {
+        'ntv':
+            {
+                'id': 'ntv',
+                'title': 'N-TV'
+            },
+        'nitro':
+            {
+                'id': 'nitro',
+                'title': 'RTL Nitro'
+            },
+        'superrtl': {
             'id': 'superrtl',
             'title': 'Super RTL'
         }
-    ]
+    }
     CONFIG_NTV_NOW = {'salt_phone': 'ba647945-6989-477b-9767-870790fcf552',
                       'salt_tablet': 'ba647945-6989-477b-9767-870790fcf552',
                       'key_phone': '46f63897-89aa-44f9-8f70-f0052050fe59',
@@ -156,8 +158,7 @@ class Client(object):
                                       'Host': 'www.voxnow.de',
                                       'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; GT-I9505 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36'}}
 
-    def __init__(self, config, amount=25):
-        self._config = config
+    def __init__(self, amount=25):
         self._amount = amount
         pass
 
@@ -315,40 +316,58 @@ class Client(object):
 
         return result
 
-    def get_formats(self, config):
-        return self._perform_request(path='/api/query/json/content.list_formats')
+    def get_formats(self, channel_config):
+        params = {
+            'fields': 'title,station,title,titleGroup,seoUrl,categoryId,*',
+            'filter': '{"Station":"%s","Disabled":"0","CategoryId":{"containsIn":["serie","news"]}}' % channel_config[
+                'id'],
+            'maxPerPage': '1000'
+        }
+        result = []
+        json_data = self._perform_request(channel_config, params=params, path='formats')
+        items = json_data.get('items', [])
+        for item in items:
+            if item['icon'] in ['free', 'new']:
+                result.append(
+                    {
+                        'title': item['title'],
+                    }
+                )
+                pass
+            pass
+        return result
 
     def search(self, q):
         params = {'word': q,
                   'extend': '1'}
         return self._perform_request(path='/api/query/json/content.format_search', params=params)
 
-    def _perform_request(self, method='GET', headers=None, path=None, post_data=None, params=None,
+    def _perform_request(self, channel_config, method='GET', headers=None, path=None, post_data=None, params=None,
                          allow_redirects=True):
         # params
         _params = {}
         if not params:
             params = {}
             pass
-        # always set the id
-        params['id'] = self._config['id']
-
         _params.update(params)
-        _params['_key'] = self._config['key_tablet']
-        timestamp = str(int(time.time()))
-        _params['_ts'] = timestamp
-        _params['_tk'] = self._calculate_token(timestamp, params)
-        _params['_auth'] = 'integrity'
 
         # headers
         if not headers:
             headers = {}
             pass
-        _headers = self._config['http-header']
+        _headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Origin': 'http://www.nowtv.de',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36',
+            'DNT': '1',
+            'Referer': 'http://www.nowtv.de/%s' % channel_config['id'],
+            'Accept-Encoding': 'gzip',
+            'Accept-Language': 'en-US,en;q=0.8,de;q=0.6'
+        }
         _headers.update(headers)
 
         # url
-        _url = self._config['url']
+        _url = 'https://api.nowtv.de/v3/'
         if path:
             _url = _url + path.strip('/')
             pass
