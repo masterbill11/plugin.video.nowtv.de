@@ -23,7 +23,7 @@ class Provider(kodion.AbstractProvider):
         pass
 
     def get_wizard_supported_views(self):
-        return ['default', 'episodes', 'tvshows']
+        return ['default', 'episodes']
 
     def get_client(self, context):
         if not self._client:
@@ -48,9 +48,30 @@ class Provider(kodion.AbstractProvider):
 
         return False
 
+    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/format/(?P<format_id>.+)/$')
+    def on_channel_format(self, context, re_match):
+        context.set_content_type(kodion.content_type.EPISODES)
+        result = []
+
+        channel_id = re_match.group('channel_id')
+        format_id = re_match.group('format_id')
+        channel_config = Client.CHANNELS[channel_id]
+        client = self.get_client(context)
+
+        videos = client.get_videos(channel_config, format_id)
+        for video in videos:
+            video_item = VideoItem(video['title'], '')
+            video_item.set_episode(video['episode'])
+            video_item.set_season(video['season'])
+            video_item.set_plot(video['plot'])
+            video_item.set_fanart(video['images']['fanart'])
+            result.append(video_item)
+            pass
+
+        return result
+
     @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formats/$')
     def on_channel_formats(self, context, re_match):
-        context.set_content_type(kodion.content_type.TV_SHOWS)
         context.add_sort_method(kodion.sort_method.LABEL)
 
         result = []
@@ -60,9 +81,12 @@ class Provider(kodion.AbstractProvider):
         client = self.get_client(context)
 
         formats = client.get_formats(channel_config)
-        for format in formats:
-            format_title = format['title']
-            format_item = DirectoryItem(format_title, '')
+        for format_data in formats:
+            format_title = format_data['title']
+            format_item = DirectoryItem(format_title,
+                                        context.create_uri([channel_id, 'format', str(format_data['id'])]))
+            format_item.set_image(format_data['images']['thumb'])
+            format_item.set_fanart(format_data['images']['fanart'])
             result.append(format_item)
             pass
 

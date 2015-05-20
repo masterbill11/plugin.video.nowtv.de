@@ -316,6 +316,52 @@ class Client(object):
 
         return result
 
+    def get_videos(self, channel_config, format_id):
+        result = []
+
+        # first get the correct id for the format
+        params = {
+            'fields': '*,.*,formatTabs.*,formatTabs.formatTabPages.*',
+            'name': '%s.php' % format_id
+        }
+        json_data = self._perform_request(channel_config, params=params, path='formats/seo')
+        items = json_data.get('formatTabs', {}).get('items', [])
+        if len(items) > 0:
+            _format_id = items[0]['id']
+            params = {
+                'fields': '*,formatTabPages.*,formatTabPages.container.*,formatTabPages.container.movies.*,formatTabPages.container.movies.format.*,formatTabPages.container.movies.paymentPaytypes.*,formatTabPages.container.movies.pictures'
+            }
+            json_data = self._perform_request(channel_config, params=params, path='formatlists/%s/' % str(_format_id))
+            format_tab_pages = json_data.get('formatTabPages', {})
+            items = format_tab_pages.get('items', [])
+
+            result = []
+            for item in items:
+                container = item.get('container', {})
+                movies = container.get('movies', {})
+                if not movies:
+                    movies = {}
+                    pass
+                _items = movies.get('items', [])
+                for _item in _items:
+                    if _item.get('free', False):
+                        video = {
+                            'title': _item['title'],
+                            'plot': _item['articleLong'],
+                            'season': _item.get('season', 0),
+                            'episode': _item.get('episode', 0),
+                            'images': {
+                                'fanart': _item.get('format', {}).get('defaultImage169Format', '')
+                            }
+                        }
+                        result.append(video)
+                        pass
+                    pass
+                pass
+            pass
+
+        return result
+
     def get_formats(self, channel_config):
         params = {
             'fields': 'title,station,title,titleGroup,seoUrl,categoryId,*',
@@ -323,14 +369,20 @@ class Client(object):
                 'id'],
             'maxPerPage': '1000'
         }
-        result = []
         json_data = self._perform_request(channel_config, params=params, path='formats')
+
+        result = []
         items = json_data.get('items', [])
         for item in items:
             if item['icon'] in ['free', 'new']:
                 result.append(
                     {
                         'title': item['title'],
+                        'id': item['seoUrl'],
+                        'images': {
+                            'fanart': item.get('defaultImage169Format', ''),
+                            'thumb': item.get('defaultImage169Logo')
+                        }
                     }
                 )
                 pass
