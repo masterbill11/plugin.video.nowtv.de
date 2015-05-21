@@ -22,68 +22,66 @@ class Client(object):
         'rtl': {
             'id': 'rtl',
             'title': 'RTL',
-            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'rtl2': {
             'id': 'rtl2',
             'title': 'RTL II',
-            'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/rtl2now/%s/660x660/formatimage.jpg'
         },
         'vox': {
             'id': 'vox',
             'title': 'VOX',
-            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/voxnow/%s/660x660/formatimage.jpg',
         },
         'ntv': {
             'id': 'ntv',
             'title': 'N-TV',
-            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/ntvnow/%s/660x660/formatimage.jpg'
         },
         'nitro': {
             'id': 'nitro',
             'title': 'RTL Nitro',
-            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/nitronow/%s/660x660/formatimage.jpg'
         },
         'superrtl': {
             'id': 'superrtl',
             'title': 'Super RTL',
-            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'thumb-url': 'http://autoimg.rtl.de/superrtlnow/%s/660x660/formatimage.jpg'
         }
     }
     CONFIG_NTV_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/ntvnow/',
-                      'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/ntvnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://www.n-tvnow.de/hds/videos/%s/manifest-hds.f4m',
                       'images': {
-                          'episode-thumbnail-url': 'http://autoimg.rtl.de/ntvnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/ntvnow/%FORMAT_ID%-default_image_169_logo/500x281/8b6ba.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/ntvnow/%FORMAT_ID%-default_image_169_format/768x432/8b6ba.jpg'
                       }
     }
 
     CONFIG_RTL_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtlnow/',
-                      'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/rtlnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://rtlnow.de/hds/videos/%s/manifest-hds.f4m',
                       'images': {
-                          'episode-thumbnail-url': 'http://autoimg.rtl.de/rtlnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/rtlnow/%FORMAT_ID%-default_image_169_logo/500x281/8b6ba.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/rtlnow/%FORMAT_ID%-default_image_169_format/768x432/8b6ba.jpg'
                       }
     }
     CONFIG_RTL2_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtl2now/',
-                       'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/rtl2now/videos/%s.m3u8',
                        'manifest_f4m': 'http://rtl2now.rtl2.de/hds/videos/%s/manifest-hds.f4m',
                        'images': {
-                           'episode-thumbnail-url': 'http://autoimg.rtl.de/rtl2now/%PIC_ID%/660x660/formatimage.jpg',
                            'format-thumbnail-url': 'http://autoimg.rtl.de/rtl2now/%FORMAT_ID%-default_image_169_logo/500x281/659c3.jpg',
                            'format-fanart-url': 'http://autoimg.rtl.de/rtl2now/%FORMAT_ID%-default_image_169_format/768x432/659c3.jpg'
                        }
     }
 
     CONFIG_VOX_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/voxnow/',
-                      'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/voxnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://voxnow.de/hds/videos/%s/manifest-hds.f4m',
                       'images': {
-                          'episode-thumbnail-url': 'http://autoimg.rtl.de/voxnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/voxnow/%FORMAT_ID%-default_image_169_logo/500x281/d9f9a.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/voxnow/%FORMAT_ID%-default_image_169_format/768x432/d9f9a.jpg'
                       }
@@ -301,6 +299,18 @@ class Client(object):
                 for _item in _items:
                     if _item.get('free', False):
                         video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
+                        thumb = ''
+                        thumbs = _item.get('pictures', {})
+                        if not thumbs:
+                            thumbs = {}
+                            pass
+                        thumbs = thumbs.get('default', [])
+                        if len(thumbs):
+                            thumb = channel_config['thumb-url'] % str(thumbs[0])
+                            pass
+                        else:
+                            thumb = _item.get('format', {}).get('defaultImage169Logo', '')
+                            pass
                         video = {
                             'title': _item['title'],
                             'id': _item['id'],
@@ -311,6 +321,7 @@ class Client(object):
                             'season': int(_item.get('season', 0)),
                             'episode': int(_item.get('episode', 0)),
                             'images': {
+                                'thumb': thumb,
                                 'fanart': _item.get('format', {}).get('defaultImage169Format', '')
                             }
                         }

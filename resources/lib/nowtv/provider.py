@@ -75,6 +75,7 @@ class Provider(kodion.AbstractProvider):
             video_item.set_episode(video['episode'])
             video_item.set_season(video['season'])
             video_item.set_plot(video['plot'])
+            video_item.set_image(video['images']['thumb'])
             video_item.set_fanart(video['images']['fanart'])
             result.append(video_item)
             pass
