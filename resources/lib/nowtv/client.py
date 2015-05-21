@@ -21,142 +21,73 @@ class Client(object):
     CHANNELS = {
         'rtl': {
             'id': 'rtl',
-            'title': 'RTL'
+            'title': 'RTL',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
         },
         'rtl2': {
             'id': 'rtl2',
-            'title': 'RTL II'
+            'title': 'RTL II',
+            'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8'
         },
         'vox': {
             'id': 'vox',
-            'title': 'VOX'
+            'title': 'VOX',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
         },
-        'ntv':
-            {
-                'id': 'ntv',
-                'title': 'N-TV'
-            },
-        'nitro':
-            {
-                'id': 'nitro',
-                'title': 'RTL Nitro'
-            },
+        'ntv': {
+            'id': 'ntv',
+            'title': 'N-TV',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+        },
+        'nitro': {
+            'id': 'nitro',
+            'title': 'RTL Nitro',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
+        },
         'superrtl': {
             'id': 'superrtl',
-            'title': 'Super RTL'
+            'title': 'Super RTL',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8'
         }
     }
-    CONFIG_NTV_NOW = {'salt_phone': 'ba647945-6989-477b-9767-870790fcf552',
-                      'salt_tablet': 'ba647945-6989-477b-9767-870790fcf552',
-                      'key_phone': '46f63897-89aa-44f9-8f70-f0052050fe59',
-                      'key_tablet': '56f63897-89aa-44f9-8f70-f0052050fe59',
-                      'url': 'https://www.n-tvnow.de/',
-                      'id': '49',
-                      'rtmpe': 'rtmpe://fms-fra%d.rtl.de/ntvnow/',
+    CONFIG_NTV_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/ntvnow/',
                       'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/ntvnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://www.n-tvnow.de/hds/videos/%s/manifest-hds.f4m',
-                      'supports': [
-                          'library',
-                          # 'new',
-                          'tips',
-                          # 'top10',
-                          'search'
-                      ],
                       'images': {
                           'episode-thumbnail-url': 'http://autoimg.rtl.de/ntvnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/ntvnow/%FORMAT_ID%-default_image_169_logo/500x281/8b6ba.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/ntvnow/%FORMAT_ID%-default_image_169_format/768x432/8b6ba.jpg'
-                      },
-                      'http-header': {'X-App-Name': 'N-TV NOW App',
-                                      'X-Device-Type': 'ntvnow_android',
-                                      'X-App-Version': '1.3.1',
-                                      # 'X-Device-Checksum': 'ed0226e4e613e4cd81c6257bced1cb1b',
-                                      'Host': 'www.n-tvnow.de',
-                                      'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; GT-I9505 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36'}}
+                      }
+    }
 
-    CONFIG_RTL_NOW = {'salt_phone': 'ba647945-6989-477b-9767-870790fcf552',
-                      'salt_tablet': 'ba647945-6989-477b-9767-870790fcf552',
-                      'key_phone': '46f63897-89aa-44f9-8f70-f0052050fe59',
-                      'key_tablet': '56f63897-89aa-44f9-8f70-f0052050fe59',
-                      'url': 'https://rtl-now.rtl.de/',
-                      'id': '9',
-                      'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtlnow/',
+    CONFIG_RTL_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtlnow/',
                       'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/rtlnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://rtlnow.de/hds/videos/%s/manifest-hds.f4m',
-                      'supports': [
-                          'library',
-                          'new',
-                          'tips',
-                          'top10',
-                          'search'
-                      ],
                       'images': {
                           'episode-thumbnail-url': 'http://autoimg.rtl.de/rtlnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/rtlnow/%FORMAT_ID%-default_image_169_logo/500x281/8b6ba.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/rtlnow/%FORMAT_ID%-default_image_169_format/768x432/8b6ba.jpg'
-                      },
-                      'http-header': {'X-App-Name': 'RTL NOW App',
-                                      'X-Device-Type': 'rtlnow_android',
-                                      'X-App-Version': '1.3.1',
-                                      # 'X-Device-Checksum': 'ed0226e4e613e4cd81c6257bced1cb1b',
-                                      'Host': 'rtl-now.rtl.de',
-                                      'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; GT-I9505 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36'}}
-
-    CONFIG_RTL2_NOW = {'salt_phone': '9be405a6-2d5c-4e62-8ba0-ba2b5f11072d',
-                       'salt_tablet': '4bfab4aa-705a-4e8c-b1a7-b551b1b2613f',
-                       'key_phone': '26c0d1ac-e6a0-4df9-9f79-e07727f33380',
-                       'key_tablet': '83bbc955-c96e-4b50-b263-bc7bcbcdf8c8',
-                       'url': 'https://rtl2now.rtl2.de/',
-                       'id': '37',
-                       'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtl2now/',
+                      }
+    }
+    CONFIG_RTL2_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/rtl2now/',
                        'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/rtl2now/videos/%s.m3u8',
                        'manifest_f4m': 'http://rtl2now.rtl2.de/hds/videos/%s/manifest-hds.f4m',
-                       'supports': [
-                           'library',
-                           'new',
-                           'tips',
-                           'top10',
-                           'search'
-                       ],
                        'images': {
                            'episode-thumbnail-url': 'http://autoimg.rtl.de/rtl2now/%PIC_ID%/660x660/formatimage.jpg',
                            'format-thumbnail-url': 'http://autoimg.rtl.de/rtl2now/%FORMAT_ID%-default_image_169_logo/500x281/659c3.jpg',
                            'format-fanart-url': 'http://autoimg.rtl.de/rtl2now/%FORMAT_ID%-default_image_169_format/768x432/659c3.jpg'
-                       },
-                       'http-header': {'X-App-Name': 'RTL II NOW App',
-                                       'X-Device-Type': 'rtl2now_android',
-                                       'X-App-Version': '1.3.1',
-                                       # 'X-Device-Checksum': 'ed0226e4e613e4cd81c6257bced1cb1b',
-                                       'Host': 'rtl2now.rtl2.de',
-                                       'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; GT-I9505 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36'}}
+                       }
+    }
 
-    CONFIG_VOX_NOW = {'salt_phone': '9fb130b5-447e-4bbc-a44a-406f2d10d963',
-                      'salt_tablet': '0df2738e-6fce-4c44-adaf-9981902de81b',
-                      'key_phone': 'b11f23ac-10f1-4335-acb8-ebaaabdb8cde',
-                      'key_tablet': '2e99d88e-088e-4108-a319-c94ba825fe29',
-                      'url': 'https://www.voxnow.de/',
-                      'id': '41',
-                      'rtmpe': 'rtmpe://fms-fra%d.rtl.de/voxnow/',
+    CONFIG_VOX_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/voxnow/',
                       'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/voxnow/videos/%s.m3u8',
                       'manifest_f4m': 'http://voxnow.de/hds/videos/%s/manifest-hds.f4m',
-                      'supports': [
-                          'library',
-                          'new',
-                          'tips',
-                          'top10',
-                          'search'
-                      ],
                       'images': {
                           'episode-thumbnail-url': 'http://autoimg.rtl.de/voxnow/%PIC_ID%/660x660/formatimage.jpg',
                           'format-thumbnail-url': 'http://autoimg.rtl.de/voxnow/%FORMAT_ID%-default_image_169_logo/500x281/d9f9a.jpg',
                           'format-fanart-url': 'http://autoimg.rtl.de/voxnow/%FORMAT_ID%-default_image_169_format/768x432/d9f9a.jpg'
-                      },
-                      'http-header': {'X-App-Name': 'VOX NOW App',
-                                      'X-Device-Type': 'voxnow_android',
-                                      'X-App-Version': '1.3.1',
-                                      # 'X-Device-Checksum': 'a5fabf8ef3f4425c0b8ff716562dd1a3',
-                                      'Host': 'www.voxnow.de',
-                                      'User-Agent': 'Mozilla/5.0 (Linux; Android 4.4.2; GT-I9505 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36'}}
+                      }
+    }
 
     def __init__(self, amount=25):
         self._amount = amount
@@ -316,6 +247,31 @@ class Client(object):
 
         return result
 
+    def get_video_streams(self, channel_config, video_id):
+        params = {'fields': 'fields=*,format,files,breakpoints,paymentPaytypes,trailers'}
+        json_data = self._perform_request(channel_config, path='movies/%s/' % video_id, params=params)
+        items = json_data.get('files', {}).get('items', [])
+        result = []
+        for item in items:
+            video_type = item['type']
+            if not video_type in ['video/x-abr']:
+                continue
+
+            bitrate = int(item['bitrate'])
+            video_url = channel_config['hds'] % item['path'].strip('/')
+            video_url = video_url.replace('hds', 'hls')
+            video_stream = {
+                'title': '%s@%d' % (video_type, bitrate),
+                'sort': [bitrate],
+                'url': video_url,
+                'video': {
+                    'bitrate': bitrate,
+                }
+            }
+            result.append(video_stream)
+            pass
+        return result
+
     def get_videos(self, channel_config, format_id):
         # first get the correct id for the format
         params = {
@@ -344,8 +300,11 @@ class Client(object):
                 _items = movies.get('items', [])
                 for _item in _items:
                     if _item.get('free', False):
+                        video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
                         video = {
                             'title': _item['title'],
+                            'id': _item['id'],
+                            'path': video_path,
                             'plot': _item['articleLong'],
                             'published': _item['broadcastStartDate'],
                             'duration': _item['duration'],

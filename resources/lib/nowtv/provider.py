@@ -1,6 +1,5 @@
 __author__ = 'bromix'
 
-from resources.lib.kodion.utils import FunctionCache
 from resources.lib import kodion
 from resources.lib.kodion.items import DirectoryItem, VideoItem, UriItem
 from resources.lib.kodion.utils import datetime_parser
@@ -33,18 +32,20 @@ class Provider(kodion.AbstractProvider):
 
         return self._client
 
-    @kodion.RegisterProviderPath('^/play/$')
-    def _on_play(self, context, re_match):
+    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/play/$')
+    def on_play(self, context, re_match):
+        channel_id = re_match.group('channel_id')
+        channel_config = Client.CHANNELS[channel_id]
         video_id = context.get_param('video_id', '')
-        if video_id:
+        video_path = context.get_param('video_path', '')
+        if video_id and video_path:
             try:
-                streams = self.get_client(context).get_film_streams(video_id)
+                video_streams = self.get_client(context).get_video_streams(channel_config, video_path)
+                video_stream = kodion.utils.select_stream(context, video_streams)
+                return UriItem(video_stream['url'])
             except UnsupportedStreamException, ex:
                 context.get_ui().show_notification(context.localize(self._local_map['now.exception.drm_not_supported']))
                 return False
-
-            uri_item = UriItem(streams[0])
-            return uri_item
 
         return False
 
@@ -60,7 +61,9 @@ class Provider(kodion.AbstractProvider):
 
         videos = client.get_videos(channel_config, format_id).get('items', [])
         for video in videos:
-            video_item = VideoItem(video['title'], '')
+            video_item = VideoItem(video['title'], context.create_uri([channel_id, 'play'],
+                                                                      {'video_path': video['path'],
+                                                                       'video_id': str(video['id'])}))
             duration = datetime_parser.parse(video['duration'])
             video_item.set_duration(duration.hour, duration.minute, duration.second)
 

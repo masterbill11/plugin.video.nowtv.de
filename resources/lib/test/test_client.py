@@ -17,4 +17,10 @@ class TestClient(unittest.TestCase):
         formats = client.get_videos(channel_config, 'rtl-aktuell')
         pass
 
+    def test_get_video_streams(self):
+        channel_config = nowtv.Client.CHANNELS['rtl']
+        client = nowtv.Client()
+        formats = client.get_video_streams(channel_config, 'rtl-aktuell/thema-ua-bahnstreik-beendet')
+        pass
+
     pass
