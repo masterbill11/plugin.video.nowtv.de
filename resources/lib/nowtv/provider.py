@@ -58,9 +58,17 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
 
-        videos = client.get_videos(channel_config, format_id)
+        videos = client.get_videos(channel_config, format_id).get('items', [])
         for video in videos:
             video_item = VideoItem(video['title'], '')
+            duration = datetime_parser.parse(video['duration'])
+            video_item.set_duration(duration.hour, duration.minute, duration.second)
+
+            published = datetime_parser.parse(video['published'])
+            video_item.set_aired_from_datetime(published)
+            video_item.set_date_from_datetime(published)
+            video_item.set_year_from_datetime(published)
+
             video_item.set_episode(video['episode'])
             video_item.set_season(video['season'])
             video_item.set_plot(video['plot'])
@@ -80,7 +88,7 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
 
-        formats = client.get_formats(channel_config)
+        formats = client.get_formats(channel_config).get('items', [])
         for format_data in formats:
             format_title = format_data['title']
             format_item = DirectoryItem(format_title,

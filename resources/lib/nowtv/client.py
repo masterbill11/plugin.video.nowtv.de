@@ -317,8 +317,6 @@ class Client(object):
         return result
 
     def get_videos(self, channel_config, format_id):
-        result = []
-
         # first get the correct id for the format
         params = {
             'fields': '*,.*,formatTabs.*,formatTabs.formatTabPages.*',
@@ -326,6 +324,8 @@ class Client(object):
         }
         json_data = self._perform_request(channel_config, params=params, path='formats/seo')
         items = json_data.get('formatTabs', {}).get('items', [])
+
+        video_list = []
         if len(items) > 0:
             _format_id = items[0]['id']
             params = {
@@ -335,7 +335,6 @@ class Client(object):
             format_tab_pages = json_data.get('formatTabPages', {})
             items = format_tab_pages.get('items', [])
 
-            result = []
             for item in items:
                 container = item.get('container', {})
                 movies = container.get('movies', {})
@@ -348,19 +347,21 @@ class Client(object):
                         video = {
                             'title': _item['title'],
                             'plot': _item['articleLong'],
-                            'season': _item.get('season', 0),
-                            'episode': _item.get('episode', 0),
+                            'published': _item['broadcastStartDate'],
+                            'duration': _item['duration'],
+                            'season': int(_item.get('season', 0)),
+                            'episode': int(_item.get('episode', 0)),
                             'images': {
                                 'fanart': _item.get('format', {}).get('defaultImage169Format', '')
                             }
                         }
-                        result.append(video)
+                        video_list.append(video)
                         pass
                     pass
                 pass
             pass
 
-        return result
+        return {'items': video_list}
 
     def get_formats(self, channel_config):
         params = {
@@ -371,11 +372,11 @@ class Client(object):
         }
         json_data = self._perform_request(channel_config, params=params, path='formats')
 
-        result = []
+        format_list = []
         items = json_data.get('items', [])
         for item in items:
             if item['icon'] in ['free', 'new']:
-                result.append(
+                format_list.append(
                     {
                         'title': item['title'],
                         'id': item['seoUrl'],
@@ -387,7 +388,8 @@ class Client(object):
                 )
                 pass
             pass
-        return result
+
+        return {'items': format_list}
 
     def search(self, q):
         params = {'word': q,
