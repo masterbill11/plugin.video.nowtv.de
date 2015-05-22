@@ -12,13 +12,8 @@ class Provider(kodion.AbstractProvider):
         self._client = None
         self._channel_ids = ['rtl', 'rtl2', 'vox', 'ntv', 'nitro', 'superrtl']
 
-        self._local_map.update({'now.library': 30500,
-                                'now.newest': 30501,
-                                'now.tips': 30502,
-                                'now.top10': 30503,
-                                'now.add_to_favs': 30101,
-                                'now.watch_later': 30107,
-                                'now.exception.drm_not_supported': 30504})
+        self._local_map.update({'nowtv.add_to_favs': 30101,
+                                'nowtv.exception.drm_not_supported': 30500})
         pass
 
     def get_wizard_supported_views(self):
@@ -102,6 +97,10 @@ class Provider(kodion.AbstractProvider):
             format_item.set_image(format_data['images']['thumb'])
             format_item.set_fanart(format_data['images']['fanart'])
             result.append(format_item)
+            context_menu = [(context.localize(self._local_map['nowtv.add_to_favs']),
+                             'RunPlugin(%s)' % context.create_uri([kodion.constants.paths.FAVORITES, 'add'],
+                                                                  {'item': kodion.items.to_jsons(format_item)}))]
+            format_item.set_context_menu(context_menu)
             pass
 
         return result
@@ -112,6 +111,7 @@ class Provider(kodion.AbstractProvider):
         # favorites
         if len(context.get_favorite_list().list()) > 0:
             fav_item = kodion.items.FavoritesItem(context, fanart=self.get_fanart(context))
+            fav_item.set_name('[B]%s[/B]' % fav_item.get_name())
             result.append(fav_item)
             pass
 

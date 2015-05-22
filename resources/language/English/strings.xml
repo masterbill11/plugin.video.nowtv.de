@@ -57,9 +57,5 @@
     <string id="30120">Clear</string>
 
     <!-- NOW TV -->
-    <string id="30500">Shows (A-Z)</string>
-    <string id="30501">Newest</string>
-    <string id="30502">Tips</string>
-    <string id="30503">Top 10</string>
-    <string id="30504">DRM protected streams are not supported</string>
+    <string id="30500">DRM protected streams are not supported</string>
 </strings>

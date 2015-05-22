@@ -56,9 +56,5 @@
     <string id="30120">Leeren</string>
 
     <!-- NOW TV -->
-    <string id="30500">Sendungen (A-Z)</string>
-    <string id="30501">Neu</string>
-    <string id="30502">Tips</string>
-    <string id="30503">Top 10</string>
-    <string id="30504">Mit DRM geschützte Videos werden nicht unterstützt</string>
+    <string id="30500">Mit DRM geschützte Videos werden nicht unterstützt</string>
 </strings>
