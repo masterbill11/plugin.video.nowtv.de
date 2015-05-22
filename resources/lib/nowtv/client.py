@@ -23,36 +23,42 @@ class Client(object):
             'id': 'rtl',
             'title': 'RTL',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'rtl2': {
             'id': 'rtl2',
             'title': 'RTL II',
             'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtl2now.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/rtl2now/%s/660x660/formatimage.jpg'
         },
         'vox': {
             'id': 'vox',
             'title': 'VOX',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/voxnow/%s/660x660/formatimage.jpg',
         },
         'ntv': {
             'id': 'ntv',
             'title': 'N-TV',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/ntvnow/%s/660x660/formatimage.jpg'
         },
         'nitro': {
             'id': 'nitro',
             'title': 'RTL Nitro',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/nitronow/%s/660x660/formatimage.jpg'
         },
         'superrtl': {
             'id': 'superrtl',
             'title': 'Super RTL',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/superrtlnow/%s/660x660/formatimage.jpg'
         }
     }
@@ -252,12 +258,12 @@ class Client(object):
         result = []
         for item in items:
             video_type = item['type']
-            if not video_type in ['video/x-abr']:
-                continue
-
+            path = item['path']
+            if video_type == 'video/x-f4v':
+                path = re.sub(r'/(.+)/((\d+)/(.*))', r'/\1/videos/\2', path)
+                pass
             bitrate = int(item['bitrate'])
-            video_url = channel_config['hds'] % item['path'].strip('/')
-            video_url = video_url.replace('hds', 'hls')
+            video_url = channel_config['hls'] % path.strip('/')
             video_stream = {
                 'title': '%s@%d' % (video_type, bitrate),
                 'sort': [bitrate],

@@ -1,2 +1,5 @@
+1.0.0~alpha2 (2015-05-22)
+ADD: playback of f4v streams (thx 2 Jin)
+
 1.0.0~alpha1 (2015-05-20)
 ADD: initial version for tests
