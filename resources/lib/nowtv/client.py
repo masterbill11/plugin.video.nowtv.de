@@ -31,35 +31,35 @@ class Client(object):
             'title': 'RTL II',
             'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8',
             'hls': 'http://hls.fra.rtl2now.de/hls-vod-enc/%s.m3u8',
-            'thumb-url': 'http://autoimg.rtl.de/rtl2now/%s/660x660/formatimage.jpg'
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'vox': {
             'id': 'vox',
             'title': 'VOX',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
             'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
-            'thumb-url': 'http://autoimg.rtl.de/voxnow/%s/660x660/formatimage.jpg',
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'ntv': {
             'id': 'ntv',
             'title': 'N-TV',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
             'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
-            'thumb-url': 'http://autoimg.rtl.de/ntvnow/%s/660x660/formatimage.jpg'
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'nitro': {
             'id': 'nitro',
             'title': 'RTL Nitro',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
             'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
-            'thumb-url': 'http://autoimg.rtl.de/nitronow/%s/660x660/formatimage.jpg'
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'superrtl': {
             'id': 'superrtl',
             'title': 'Super RTL',
             'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
             'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
-            'thumb-url': 'http://autoimg.rtl.de/superrtlnow/%s/660x660/formatimage.jpg'
+            'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         }
     }
     CONFIG_NTV_NOW = {'rtmpe': 'rtmpe://fms-fra%d.rtl.de/ntvnow/',
@@ -312,7 +312,7 @@ class Client(object):
                             pass
                         thumbs = thumbs.get('default', [])
                         if len(thumbs):
-                            thumb = channel_config['thumb-url'] % str(thumbs[0])
+                            thumb = channel_config['thumb-url'] % str(thumbs[0]['id'])
                             pass
                         else:
                             thumb = _item.get('format', {}).get('defaultImage169Logo', '')
