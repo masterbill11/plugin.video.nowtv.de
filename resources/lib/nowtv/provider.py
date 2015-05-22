@@ -128,6 +128,7 @@ class Provider(kodion.AbstractProvider):
             channel_title = channel_config['title']
             channel_item = DirectoryItem(channel_title, context.create_uri([channel_id, 'formats']))
             channel_item.set_fanart(context.create_resource_path('media', channel_id, 'background.jpg'))
+            channel_item.set_image(context.create_resource_path('media', channel_id, 'logo.png'))
             result.append(channel_item)
             pass
 
