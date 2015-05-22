@@ -29,8 +29,8 @@ class Client(object):
         'rtl2': {
             'id': 'rtl2',
             'title': 'RTL II',
-            'hds': 'http://hds.fra.rtl2now.de/hds-vod-enc/%s.m3u8',
-            'hls': 'http://hls.fra.rtl2now.de/hls-vod-enc/%s.m3u8',
+            'hds': 'http://hds.fra.rtlnow.de/hds-vod-enc/%s.m3u8',
+            'hls': 'http://hls.fra.rtlnow.de/hls-vod-enc/%s.m3u8',
             'thumb-url': 'http://autoimg.rtl.de/rtlnow/%s/660x660/formatimage.jpg'
         },
         'vox': {
@@ -284,6 +284,7 @@ class Client(object):
         }
         json_data = self._perform_request(channel_config, params=params, path='formats/seo')
         items = json_data.get('formatTabs', {}).get('items', [])
+        format_title = json_data.get('title', '')
 
         video_list = []
         if len(items) > 0:
@@ -319,6 +320,7 @@ class Client(object):
                             pass
                         video = {
                             'title': _item['title'],
+                            'format': format_title,
                             'id': _item['id'],
                             'path': video_path,
                             'plot': _item['articleLong'],

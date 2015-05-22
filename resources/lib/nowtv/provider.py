@@ -72,6 +72,8 @@ class Provider(kodion.AbstractProvider):
             video_item.set_date_from_datetime(published)
             video_item.set_year_from_datetime(published)
 
+            video_item.set_studio(video['format'])
+            video_item.add_artist(video['format'])
             video_item.set_episode(video['episode'])
             video_item.set_season(video['season'])
             video_item.set_plot(video['plot'])
