@@ -52,7 +52,7 @@ class Provider(kodion.AbstractProvider):
         channel_id = channel_config['id']
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
-        videos = client.get_videos(channel_config, format_list_id).get('items', [])
+        videos = client.get_videos_by_format_list(channel_config, format_list_id).get('items', [])
         for video in videos:
             video_item = VideoItem(video['title'], context.create_uri([channel_config['id'], 'play'],
                                                                       {'video_path': video['path'],

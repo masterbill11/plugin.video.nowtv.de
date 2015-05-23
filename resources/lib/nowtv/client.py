@@ -303,7 +303,7 @@ class Client(object):
             pass
         return result
 
-    def get_videos(self, channel_config, format_list_id):
+    def get_videos_by_format_list(self, channel_config, format_list_id):
         video_list = []
 
         params = {

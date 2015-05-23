@@ -20,7 +20,7 @@ class TestClient(unittest.TestCase):
     def test_get_videos(self):
         channel_config = nowtv.Client.CHANNELS['rtl']
         client = nowtv.Client()
-        formats = client.get_videos(channel_config, 'betrugsfaelle')
+        formats = client.get_videos_by_format_list(channel_config, 'betrugsfaelle')
         pass
 
     def test_get_video_streams(self):
