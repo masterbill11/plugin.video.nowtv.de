@@ -276,11 +276,11 @@ class Client(object):
             pass
         return result
 
-    def get_format_tabs(self, channel_config, format_id):
+    def get_format_tabs(self, channel_config, seo_url):
         # first get the correct id for the format
         params = {
             'fields': '*,.*,formatTabs.*,formatTabs.formatTabPages.*',
-            'name': '%s.php' % format_id
+            'name': '%s.php' % seo_url
         }
         json_data = self._perform_request(channel_config, params=params, path='formats/seo')
 
@@ -375,7 +375,8 @@ class Client(object):
                 format_list.append(
                     {
                         'title': item['title'],
-                        'id': item['seoUrl'],
+                        'id': item['id'],
+                        'seoUrl': item['seoUrl'],
                         'images': {
                             'fanart': item.get('defaultImage169Format', ''),
                             'thumb': item.get('defaultImage169Logo')

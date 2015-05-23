@@ -86,29 +86,33 @@ class Provider(kodion.AbstractProvider):
 
     @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/format/(?P<format_id>.+)/$')
     def on_channel_format(self, context, re_match):
-        result = []
-
         channel_id = re_match.group('channel_id')
-        format_id = re_match.group('format_id')
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
 
-        format_tabs = client.get_format_tabs(channel_config, format_id)
-        if len(format_tabs) == 1:
-            format_tab = format_tabs[0]
-            result.extend(self._on_channel_format_list(context, channel_config, format_tab['id']))
-            pass
-        else:
+        # try to process tabs
+        seo_url = context.get_param('seoUrl', '')
+        if seo_url:
+            format_tabs = client.get_format_tabs(channel_config, seo_url)
+            # with only one tab we could display the whole list of videos
+            if len(format_tabs) == 1:
+                format_tab = format_tabs[0]
+                return self._on_channel_format_list(context, channel_config, format_tab['id'])
+
+            # show the tabs/sections
+            tabs = []
             for format_tab in format_tabs:
                 tab_item = DirectoryItem(format_tab['title'],
                                          context.create_uri([channel_id, 'formatlist', str(format_tab['id'])]))
                 tab_item.set_image(format_tab['images']['thumb'])
                 tab_item.set_fanart(format_tab['images']['fanart'])
-                result.append(tab_item)
+                tabs.append(tab_item)
                 pass
-            pass
+            return tabs
 
-        return result
+        format_id = re_match.group('format_id')
+
+        return []
 
     @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formats/$')
     def on_channel_formats(self, context, re_match):
@@ -123,8 +127,12 @@ class Provider(kodion.AbstractProvider):
         formats = client.get_formats(channel_config).get('items', [])
         for format_data in formats:
             format_title = format_data['title']
+            params = {}
+            if format_data.get('seoUrl', ''):
+                params['seoUrl'] = format_data['seoUrl']
+                pass
             format_item = DirectoryItem(format_title,
-                                        context.create_uri([channel_id, 'format', str(format_data['id'])]))
+                                        context.create_uri([channel_id, 'format', str(format_data['id'])], params))
             format_item.set_image(format_data['images']['thumb'])
             format_item.set_fanart(format_data['images']['fanart'])
             result.append(format_item)
