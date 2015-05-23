@@ -1,3 +1,5 @@
+from resources.lib.kodion.exceptions import KodionException
+
 __author__ = 'bromix'
 
 from resources.lib import kodion
@@ -35,7 +37,8 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         video_id = context.get_param('video_id', '')
         video_path = context.get_param('video_path', '')
-        if context.get_param('free', '0') == '0':
+
+        if context.get_param('free', '1') == '0':
             price = context.get_param('price', '')
             title = context.localize(self._local_map['nowtv.buy.title']) % price
             context.get_ui().on_ok(title, context.localize(self._local_map['nowtv.buy.text']))
@@ -61,6 +64,7 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
         videos = client.get_videos_by_format_list(channel_config, format_list_id).get('items', [])
+
         for video in videos:
             video_params = {'video_path': video['path'],
                             'video_id': str(video['id'])}
@@ -117,11 +121,22 @@ class Provider(kodion.AbstractProvider):
             # show the tabs/sections
             tabs = []
             for format_tab in format_tabs:
-                tab_item = DirectoryItem(format_tab['title'],
-                                         context.create_uri([channel_id, 'formatlist', str(format_tab['id'])]))
-                tab_item.set_image(format_tab['images']['thumb'])
-                tab_item.set_fanart(format_tab['images']['fanart'])
-                tabs.append(tab_item)
+                if format_tab['type'] == 'season' or format_tab['type'] == 'year':
+                    tab_item = DirectoryItem(format_tab['title'],
+                                             context.create_uri([channel_id, 'formatlist', str(format_tab['id'])]))
+                    tab_item.set_image(format_tab['images']['thumb'])
+                    tab_item.set_fanart(format_tab['images']['fanart'])
+                    tabs.append(tab_item)
+                    pass
+                elif format_tab['type'] == 'year':
+                    tab_item = DirectoryItem(format_tab['title'],
+                                             context.create_uri([channel_id, 'yearlist', str(format_tab['id'])]))
+                    tab_item.set_image(format_tab['images']['thumb'])
+                    tab_item.set_fanart(format_tab['images']['fanart'])
+                    tabs.append(tab_item)
+                    pass
+                else:
+                    raise KodionException('Unknown type "%s" for tab' % format_tab['type'])
                 pass
             return tabs
 

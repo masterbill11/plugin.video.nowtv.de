@@ -285,20 +285,31 @@ class Client(object):
         json_data = self._perform_request(channel_config, params=params, path='formats/seo')
 
         result = []
-        tab_items = json_data.get('formatTabs', {}).get('items', [])
+        tab_items = json_data.get('formatTabs', {})
+        if not tab_items:
+            tab_items = {}
+            pass
+        tab_items = tab_items.get('items', [])
+
         for tab_item in tab_items:
             title = tab_item['headline']
             # only valid title
             if title:
-                result.append({
+                tab = {
                     'title': title,
-                    'type': 'season',
                     'id': tab_item['id'],
                     'images': {
                         'thumb': json_data['defaultImage169Logo'],
                         'fanart': json_data['defaultImage169Format']
                     }
-                })
+                }
+                if json_data.get('tabSeason', False):
+                    tab['type'] = 'season'
+                    pass
+                else:
+                    tab['type'] = 'year'
+                    pass
+                result.append(tab)
                 pass
             pass
         return result
