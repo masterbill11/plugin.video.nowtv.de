@@ -11,6 +11,12 @@ class TestClient(unittest.TestCase):
         formats = client.get_formats(channel_config)
         pass
 
+    def test_get_format_tabs(self):
+        channel_config = nowtv.Client.CHANNELS['rtl']
+        client = nowtv.Client()
+        format_tabs = client.get_format_tabs(channel_config, 'alarm-fuer-cobra-11')
+        pass
+
     def test_get_videos(self):
         channel_config = nowtv.Client.CHANNELS['rtl']
         client = nowtv.Client()

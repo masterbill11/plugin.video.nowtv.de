@@ -276,65 +276,83 @@ class Client(object):
             pass
         return result
 
-    def get_videos(self, channel_config, format_id):
+    def get_format_tabs(self, channel_config, format_id):
         # first get the correct id for the format
         params = {
             'fields': '*,.*,formatTabs.*,formatTabs.formatTabPages.*',
             'name': '%s.php' % format_id
         }
         json_data = self._perform_request(channel_config, params=params, path='formats/seo')
-        items = json_data.get('formatTabs', {}).get('items', [])
-        format_title = json_data.get('title', '')
 
+        result = []
+        tab_items = json_data.get('formatTabs', {}).get('items', [])
+        for tab_item in tab_items:
+            title = tab_item['headline']
+            # only valid title
+            if title:
+                result.append({
+                    'title': title,
+                    'type': 'season',
+                    'id': tab_item['id'],
+                    'images': {
+                        'thumb': json_data['defaultImage169Logo'],
+                        'fanart': json_data['defaultImage169Format']
+                    }
+                })
+                pass
+            pass
+        return result
+
+    def get_videos(self, channel_config, format_list_id):
         video_list = []
-        if len(items) > 0:
-            _format_id = items[0]['id']
-            params = {
-                'fields': '*,formatTabPages.*,formatTabPages.container.*,formatTabPages.container.movies.*,formatTabPages.container.movies.format.*,formatTabPages.container.movies.paymentPaytypes.*,formatTabPages.container.movies.pictures'
-            }
-            json_data = self._perform_request(channel_config, params=params, path='formatlists/%s/' % str(_format_id))
-            format_tab_pages = json_data.get('formatTabPages', {})
-            items = format_tab_pages.get('items', [])
 
-            for item in items:
-                container = item.get('container', {})
-                movies = container.get('movies', {})
-                if not movies:
-                    movies = {}
-                    pass
-                _items = movies.get('items', [])
-                for _item in _items:
-                    if _item.get('free', False):
-                        video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
-                        thumb = ''
-                        thumbs = _item.get('pictures', {})
-                        if not thumbs:
-                            thumbs = {}
-                            pass
-                        thumbs = thumbs.get('default', [])
-                        if len(thumbs):
-                            thumb = channel_config['thumb-url'] % str(thumbs[0]['id'])
-                            pass
-                        else:
-                            thumb = _item.get('format', {}).get('defaultImage169Logo', '')
-                            pass
-                        video = {
-                            'title': _item['title'],
-                            'format': format_title,
-                            'id': _item['id'],
-                            'path': video_path,
-                            'plot': _item['articleLong'],
-                            'published': _item['broadcastStartDate'],
-                            'duration': _item['duration'],
-                            'season': int(_item.get('season', 0)),
-                            'episode': int(_item.get('episode', 0)),
-                            'images': {
-                                'thumb': thumb,
-                                'fanart': _item.get('format', {}).get('defaultImage169Format', '')
-                            }
-                        }
-                        video_list.append(video)
+        params = {
+            'fields': '*,formatTabPages.*,formatTabPages.container.*,formatTabPages.container.movies.*,formatTabPages.container.movies.format.*,formatTabPages.container.movies.paymentPaytypes.*,formatTabPages.container.movies.pictures',
+            'maxPerPage': '100',
+            'page': '1'
+        }
+        json_data = self._perform_request(channel_config, params=params, path='formatlists/%s/' % str(format_list_id))
+        format_tab_pages = json_data.get('formatTabPages', {})
+        items = format_tab_pages.get('items', [])
+
+        for item in items:
+            container = item.get('container', {})
+            movies = container.get('movies', {})
+            if not movies:
+                movies = {}
+                pass
+            _items = movies.get('items', [])
+            for _item in _items:
+                if _item.get('free', False):
+                    video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
+                    thumb = ''
+                    thumbs = _item.get('pictures', {})
+                    if not thumbs:
+                        thumbs = {}
                         pass
+                    thumbs = thumbs.get('default', [])
+                    if len(thumbs):
+                        thumb = channel_config['thumb-url'] % str(thumbs[0]['id'])
+                        pass
+                    else:
+                        thumb = _item.get('format', {}).get('defaultImage169Logo', '')
+                        pass
+                    video = {
+                        'title': _item['title'],
+                        #'format': format_title,
+                        'id': _item['id'],
+                        'path': video_path,
+                        'plot': _item['articleLong'],
+                        'published': _item['broadcastStartDate'],
+                        'duration': _item['duration'],
+                        'season': int(_item.get('season', 0)),
+                        'episode': int(_item.get('episode', 0)),
+                        'images': {
+                            'thumb': thumb,
+                            'fanart': _item.get('format', {}).get('defaultImage169Format', '')
+                        }
+                    }
+                    video_list.append(video)
                     pass
                 pass
             pass

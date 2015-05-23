@@ -44,19 +44,17 @@ class Provider(kodion.AbstractProvider):
 
         return False
 
-    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/format/(?P<format_id>.+)/$')
-    def on_channel_format(self, context, re_match):
+    def _on_channel_format_list(self, context, channel_config, format_list_id):
         context.set_content_type(kodion.content_type.EPISODES)
+
         result = []
 
-        channel_id = re_match.group('channel_id')
-        format_id = re_match.group('format_id')
+        channel_id = channel_config['id']
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
-
-        videos = client.get_videos(channel_config, format_id).get('items', [])
+        videos = client.get_videos(channel_config, format_list_id).get('items', [])
         for video in videos:
-            video_item = VideoItem(video['title'], context.create_uri([channel_id, 'play'],
+            video_item = VideoItem(video['title'], context.create_uri([channel_config['id'], 'play'],
                                                                       {'video_path': video['path'],
                                                                        'video_id': str(video['id'])}))
             duration = datetime_parser.parse(video['duration'])
@@ -67,14 +65,47 @@ class Provider(kodion.AbstractProvider):
             video_item.set_date_from_datetime(published)
             video_item.set_year_from_datetime(published)
 
-            video_item.set_studio(video['format'])
-            video_item.add_artist(video['format'])
+            # video_item.set_studio(video['format'])
+            #video_item.add_artist(video['format'])
             video_item.set_episode(video['episode'])
             video_item.set_season(video['season'])
             video_item.set_plot(video['plot'])
             video_item.set_image(video['images']['thumb'])
             video_item.set_fanart(video['images']['fanart'])
             result.append(video_item)
+            pass
+
+        return result
+
+    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formatlist/(?P<format_list_id>.+)/$')
+    def on_channel_format_list(self, context, re_match):
+        channel_id = re_match.group('channel_id')
+        format_list_id = re_match.group('format_list_id')
+        channel_config = Client.CHANNELS[channel_id]
+        return self._on_channel_format_list(context, channel_config, format_list_id)
+
+    @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/format/(?P<format_id>.+)/$')
+    def on_channel_format(self, context, re_match):
+        result = []
+
+        channel_id = re_match.group('channel_id')
+        format_id = re_match.group('format_id')
+        channel_config = Client.CHANNELS[channel_id]
+        client = self.get_client(context)
+
+        format_tabs = client.get_format_tabs(channel_config, format_id)
+        if len(format_tabs) == 1:
+            format_tab = format_tabs[0]
+            result.extend(self._on_channel_format_list(context, channel_config, format_tab['id']))
+            pass
+        else:
+            for format_tab in format_tabs:
+                tab_item = DirectoryItem(format_tab['title'],
+                                         context.create_uri([channel_id, 'formatlist', str(format_tab['id'])]))
+                tab_item.set_image(format_tab['images']['thumb'])
+                tab_item.set_fanart(format_tab['images']['fanart'])
+                result.append(tab_item)
+                pass
             pass
 
         return result
