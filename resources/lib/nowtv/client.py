@@ -323,37 +323,42 @@ class Client(object):
                 pass
             _items = movies.get('items', [])
             for _item in _items:
-                if _item.get('free', False):
-                    video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
-                    thumb = ''
-                    thumbs = _item.get('pictures', {})
-                    if not thumbs:
-                        thumbs = {}
-                        pass
-                    thumbs = thumbs.get('default', [])
-                    if len(thumbs):
-                        thumb = channel_config['thumb-url'] % str(thumbs[0]['id'])
-                        pass
-                    else:
-                        thumb = _item.get('format', {}).get('defaultImage169Logo', '')
-                        pass
-                    video = {
-                        'title': _item['title'],
-                        #'format': format_title,
-                        'id': _item['id'],
-                        'path': video_path,
-                        'plot': _item['articleLong'],
-                        'published': _item['broadcastStartDate'],
-                        'duration': _item['duration'],
-                        'season': int(_item.get('season', 0)),
-                        'episode': int(_item.get('episode', 0)),
-                        'images': {
-                            'thumb': thumb,
-                            'fanart': _item.get('format', {}).get('defaultImage169Format', '')
-                        }
-                    }
-                    video_list.append(video)
+                video_path = '%s/%s' % (_item['format']['seoUrl'], _item['seoUrl'])
+                thumb = ''
+                thumbs = _item.get('pictures', {})
+                if not thumbs:
+                    thumbs = {}
                     pass
+                thumbs = thumbs.get('default', [])
+                if len(thumbs):
+                    thumb = channel_config['thumb-url'] % str(thumbs[0]['id'])
+                    pass
+                else:
+                    thumb = _item.get('format', {}).get('defaultImage169Logo', '')
+                    pass
+                video = {
+                    'title': _item['title'],
+                    'free': _item.get('free', False),
+                    'format': _item.get('format', {}).get('title', ''),
+                    'id': _item['id'],
+                    'path': video_path,
+                    'plot': _item['articleLong'],
+                    'published': _item['broadcastStartDate'],
+                    'duration': _item['duration'],
+                    'season': int(_item.get('season', 0)),
+                    'episode': int(_item.get('episode', 0)),
+                    'images': {
+                        'thumb': thumb,
+                        'fanart': _item.get('format', {}).get('defaultImage169Format', '')
+                    }
+                }
+                # add price
+                if not video['free']:
+                    price = _item['paymentPaytypes']['items'][0]
+                    price = '%s %s' % (price['price'], price['currency'])
+                    video['price'] = price
+                    pass
+                video_list.append(video)
                 pass
             pass
 

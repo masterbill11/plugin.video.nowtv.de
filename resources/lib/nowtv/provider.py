@@ -13,7 +13,9 @@ class Provider(kodion.AbstractProvider):
         self._channel_ids = ['rtl', 'rtl2', 'vox', 'ntv', 'nitro', 'superrtl']
 
         self._local_map.update({'nowtv.add_to_favs': 30101,
-                                'nowtv.exception.drm_not_supported': 30500})
+                                'nowtv.exception.drm_not_supported': 30500,
+                                'nowtv.buy.title': 30501,
+                                'nowtv.buy.text': 30502})
         pass
 
     def get_wizard_supported_views(self):
@@ -33,6 +35,12 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         video_id = context.get_param('video_id', '')
         video_path = context.get_param('video_path', '')
+        if context.get_param('free', '0') == '0':
+            price = context.get_param('price', '')
+            title = context.localize(self._local_map['nowtv.buy.title']) % price
+            context.get_ui().on_ok(title, context.localize(self._local_map['nowtv.buy.text']))
+            return False
+
         if video_id and video_path:
             try:
                 video_streams = self.get_client(context).get_video_streams(channel_config, video_path)
@@ -54,9 +62,16 @@ class Provider(kodion.AbstractProvider):
         client = self.get_client(context)
         videos = client.get_videos_by_format_list(channel_config, format_list_id).get('items', [])
         for video in videos:
-            video_item = VideoItem(video['title'], context.create_uri([channel_config['id'], 'play'],
-                                                                      {'video_path': video['path'],
-                                                                       'video_id': str(video['id'])}))
+            video_params = {'video_path': video['path'],
+                            'video_id': str(video['id'])}
+
+            title = video['title']
+            if not video['free']:
+                title = '[B][%s][/B] - %s' % (video['price'], title)
+                video_params['free'] = '0'
+                video_params['price'] = video['price']
+                pass
+            video_item = VideoItem(title, context.create_uri([channel_config['id'], 'play'], video_params))
             duration = datetime_parser.parse(video['duration'])
             video_item.set_duration(duration.hour, duration.minute, duration.second)
 
@@ -65,8 +80,8 @@ class Provider(kodion.AbstractProvider):
             video_item.set_date_from_datetime(published)
             video_item.set_year_from_datetime(published)
 
-            # video_item.set_studio(video['format'])
-            #video_item.add_artist(video['format'])
+            video_item.set_studio(video['format'])
+            video_item.add_artist(video['format'])
             video_item.set_episode(video['episode'])
             video_item.set_season(video['season'])
             video_item.set_plot(video['plot'])
