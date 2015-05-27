@@ -144,6 +144,27 @@ class Provider(kodion.AbstractProvider):
 
         return []
 
+    def _do_formats(self, context, json_formats):
+        result = []
+        formats = json_formats.get('items', [])
+        for format_data in formats:
+            format_title = format_data['title']
+            params = {}
+            if format_data.get('seoUrl', ''):
+                params['seoUrl'] = format_data['seoUrl']
+                pass
+            format_item = DirectoryItem(format_title,
+                                        context.create_uri([format_data['station'], 'format', str(format_data['id'])], params))
+            format_item.set_image(format_data['images']['thumb'])
+            format_item.set_fanart(format_data['images']['fanart'])
+            result.append(format_item)
+            context_menu = [(context.localize(self._local_map['nowtv.add_to_favs']),
+                             'RunPlugin(%s)' % context.create_uri([kodion.constants.paths.FAVORITES, 'add'],
+                                                                  {'item': kodion.items.to_jsons(format_item)}))]
+            format_item.set_context_menu(context_menu)
+            pass
+        return result
+
     @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formats/$')
     def on_channel_formats(self, context, re_match):
         context.add_sort_method(kodion.sort_method.LABEL)
@@ -154,25 +175,15 @@ class Provider(kodion.AbstractProvider):
         channel_config = Client.CHANNELS[channel_id]
         client = self.get_client(context)
 
-        formats = client.get_formats(channel_config).get('items', [])
-        for format_data in formats:
-            format_title = format_data['title']
-            params = {}
-            if format_data.get('seoUrl', ''):
-                params['seoUrl'] = format_data['seoUrl']
-                pass
-            format_item = DirectoryItem(format_title,
-                                        context.create_uri([channel_id, 'format', str(format_data['id'])], params))
-            format_item.set_image(format_data['images']['thumb'])
-            format_item.set_fanart(format_data['images']['fanart'])
-            result.append(format_item)
-            context_menu = [(context.localize(self._local_map['nowtv.add_to_favs']),
-                             'RunPlugin(%s)' % context.create_uri([kodion.constants.paths.FAVORITES, 'add'],
-                                                                  {'item': kodion.items.to_jsons(format_item)}))]
-            format_item.set_context_menu(context_menu)
-            pass
+        json_formats = client.get_formats(channel_config)
+        return self._do_formats(context, json_formats)
 
-        return result
+    def on_search(self, search_text, context, re_match):
+        context.add_sort_method(kodion.sort_method.LABEL)
+
+        client = self.get_client(context)
+        json_formats = client.search(search_text)
+        return self._do_formats(context, json_formats)
 
     def on_root(self, context, re_match):
         result = []
@@ -200,6 +211,11 @@ class Provider(kodion.AbstractProvider):
             channel_item.set_image(context.create_resource_path('media', channel_id, 'logo.png'))
             result.append(channel_item)
             pass
+
+        # search
+        search_item = kodion.items.SearchItem(context, image=context.create_resource_path('media', 'search.png'),
+                                              fanart=self.get_fanart(context))
+        result.append(search_item)
 
         return result
 

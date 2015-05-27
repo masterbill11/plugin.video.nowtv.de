@@ -1,4 +1,5 @@
 import hashlib
+import json
 import re
 import uuid
 import time
@@ -375,11 +376,30 @@ class Client(object):
 
         return {'items': video_list}
 
+    def _make_item_to_format(self, json_item):
+        format_item = {
+            'title': json_item['title'],
+            'station': json_item.get('station', ''),
+            'id': json_item['id'],
+            'seoUrl': json_item['seoUrl'],
+            'images': {
+                'fanart': json_item.get('defaultImage169Format', ''),
+                'thumb': json_item.get('defaultImage169Logo')
+            }
+        }
+        return format_item
+
     def get_formats(self, channel_config):
+        filter = {
+            'Station': channel_config['id'],
+            'Disabled': '0',
+            'CategoryId': {
+                'containsIn': ['serie', 'news']
+            }
+        }
         params = {
             'fields': 'title,station,title,titleGroup,seoUrl,categoryId,*',
-            'filter': '{"Station":"%s","Disabled":"0","CategoryId":{"containsIn":["serie","news"]}}' % channel_config[
-                'id'],
+            'filter': json.dumps(filter),
             'maxPerPage': '1000'
         }
         json_data = self._perform_request(channel_config, params=params, path='formats')
@@ -388,26 +408,45 @@ class Client(object):
         items = json_data.get('items', [])
         for item in items:
             if item['icon'] in ['free', 'new']:
-                format_list.append(
-                    {
-                        'title': item['title'],
-                        'id': item['id'],
-                        'seoUrl': item['seoUrl'],
-                        'images': {
-                            'fanart': item.get('defaultImage169Format', ''),
-                            'thumb': item.get('defaultImage169Logo')
-                        }
-                    }
-                )
+                format_item = self._make_item_to_format(item)
+                format_list.append(format_item)
                 pass
             pass
 
         return {'items': format_list}
 
     def search(self, q):
-        params = {'word': q,
-                  'extend': '1'}
-        return self._perform_request(path='/api/query/json/content.format_search', params=params)
+        def _search(_q, _page=1, _count=0):
+            _result = []
+            _params = {'fields': 'id,title,station,seoUrl,searchAliasName,icon,*',
+                       'maxPerPage': '500',
+                       'page': str(_page)}
+            _json_data = self._perform_request(None, path='formats', params=_params)
+            _total = _json_data.get('total', 0)
+            _items = _json_data.get('items', [])
+            _count += len(_items)
+
+            for _item in _items:
+                if re.search(_q, _item.get('title', ''), re.IGNORECASE):
+                    _result.append(_item)
+                    pass
+                pass
+
+            if _count < _total:
+                _result.extend(_search(_q, _page+1, _count))
+                pass
+            return _result
+
+        items = _search(q, 1)
+        format_list = []
+        for item in items:
+            if item['icon'] in ['free', 'new']:
+                format_item = self._make_item_to_format(item)
+                format_list.append(format_item)
+                pass
+            pass
+
+        return {'items': format_list}
 
     def _perform_request(self, channel_config, method='GET', headers=None, path=None, post_data=None, params=None,
                          allow_redirects=True):
@@ -427,10 +466,13 @@ class Client(object):
             'Origin': 'http://www.nowtv.de',
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36',
             'DNT': '1',
-            'Referer': 'http://www.nowtv.de/%s' % channel_config['id'],
+            'Referer': 'http://www.nowtv.de/',
             'Accept-Encoding': 'gzip',
             'Accept-Language': 'en-US,en;q=0.8,de;q=0.6'
         }
+        if channel_config:
+            _headers['Referer'] = 'http://www.nowtv.de/%s' % channel_config['id']
+            pass
         _headers.update(headers)
 
         # url
