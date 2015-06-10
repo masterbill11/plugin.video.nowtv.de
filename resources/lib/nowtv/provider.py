@@ -55,17 +55,14 @@ class Provider(kodion.AbstractProvider):
 
         return False
 
-    def _on_channel_format_list(self, context, channel_config, format_list_id):
-        context.set_content_type(kodion.content_type.EPISODES)
-
+    def _videos_to_items(self, context, videos, channel_config):
         result = []
 
-        channel_id = channel_config['id']
-        channel_config = Client.CHANNELS[channel_id]
-        client = self.get_client(context)
-        videos = client.get_videos_by_format_list(channel_config, format_list_id).get('items', [])
-
+        show_only_free_videos = context.get_settings().get_bool('nowtv.videos.only_free', False)
         for video in videos:
+            if show_only_free_videos and not video['free']:
+                continue
+
             video_params = {'video_path': video['path'],
                             'video_id': str(video['id'])}
 
@@ -95,6 +92,18 @@ class Provider(kodion.AbstractProvider):
             pass
 
         return result
+
+    def _on_channel_format_list(self, context, channel_config, format_list_id):
+        context.set_content_type(kodion.content_type.EPISODES)
+
+        result = []
+
+        channel_id = channel_config['id']
+        channel_config = Client.CHANNELS[channel_id]
+        client = self.get_client(context)
+        videos = client.get_videos_by_format_list(channel_config, format_list_id).get('items', [])
+
+        return self._videos_to_items(context, videos, channel_config)
 
     @kodion.RegisterProviderPath('^/(?P<channel_id>[a-z0-9]+)/formatlist/(?P<format_list_id>.+)/$')
     def on_channel_format_list(self, context, re_match):
